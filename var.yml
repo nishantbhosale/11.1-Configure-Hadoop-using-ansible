@@ -1,0 +1,11 @@
+jdk_path: "/root/jdk-8u171-linux-x64.rpm"
+hadoop_path: "/root/hadoop-1.2.1-1.x86_64.rpm"
+
+jdk_soft: "jdk-8u171-linux-x64.rpm"
+hadoop_soft: "hadoop-1.2.1-1.x86_64.rpm"
+
+name_node_ip: 192.168.0.112 
+name_node_port: 9001
+name_folder_dir: "/nn"
+
+data_folder_dir: "/dn"

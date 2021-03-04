@@ -1,0 +1,116 @@
+- hosts: namenode
+
+  vars_files:
+    - var.yml
+  
+  tasks:
+
+    - name: "copying the JDK file.."
+      copy:
+        src: "{{ jdk_path }}" 
+        dest: "/root/"
+
+    - name: "copying the Hadoop file.."
+      copy:
+        src: "{{ hadoop_path }}"
+        dest: "/root/"
+
+    - name: Install Java Software
+      shell: "rpm -i /root/jdk-8u171-linux-x64.rpm"
+      register: java_install
+
+    - name: java install information
+      debug:
+        var: java_install
+
+    - name: Install Hadoop Software
+      shell: "rpm -i /root/hadoop-1.2.1-1.x86_64.rpm --force"
+      register: hadoop_install
+      when: java_install.rc == 0
+
+    - name: hadoop install information
+      debug:
+        var: hadoop_install
+
+    - name: "Creating the directory.."
+      file: 
+        state: directory
+        path: "{{ name_folder_dir }}"
+
+    - name: "Copying the hdfs-site.xml configuration file.."
+      template:
+        src: "name_node_hdfs-site.xml"
+        dest: "/etc/hadoop/hdfs-site.xml"
+
+    - name: "Copying the core-site.xml configuration file.."
+      template:
+        src: "name_node_core-site.xml"
+        dest: "/etc/hadoop/core-site.xml"
+
+    - name: "Format the name node directory.."
+      shell: "echo Y | hadoop namenode -format"
+    
+    - name: "Stopping Firewall.."
+      command: "systemctl stop firewalld"
+     
+      # - name: "clearing memory.."
+      #command: "echo 3 > /proc/sys/vm/drop_cashes"
+
+    - name: "Start the services of name node.."
+      command: "hadoop-daemon.sh start namenode"
+
+
+- hosts: datanode
+  vars_files:
+    - var.yml
+
+  tasks:
+
+    - name: "copying the JDK file.."
+      copy:
+        src: "{{ jdk_path }}" 
+        dest: "/root/"
+
+    - name: "copying the Hadoop file.."
+      copy:
+        src: "{{ hadoop_path }}"
+        dest: "/root/"
+
+    - name: Install Java Software
+      shell: "rpm -i /root/jdk-8u171-linux-x64.rpm"
+      register: java_install
+
+    - name: java install information
+      debug:
+        var: java_install
+
+    - name: Install Hadoop Software
+      shell: "rpm -i /root/hadoop-1.2.1-1.x86_64.rpm --force"
+      register: hadoop_install
+      when: java_install.rc == 0
+
+    - name: hadoop install information
+      debug:
+        var: hadoop_install
+
+    - name: "Creating the directory.."
+      file: 
+        state: directory
+        path: "{{ data_folder_dir }}"
+
+    - name: "Copying the hdfs-site.xml configuration file.."
+      template:
+        src: "data_node_hdfs-site.xml"
+        dest: "/etc/hadoop/hdfs-site.xml"
+
+    - name: "Copying the core-site.xml configuration file.."
+      template:
+        src: "data_node_core-site.xml"
+        dest: "/etc/hadoop/core-site.xml"
+
+        #- name: "clearing memory.."
+        #command: "echo 3 > /proc/sys/vm/drop_cashes"
+
+    - name: "Start the services of data node.."
+      command: "hadoop-daemon.sh start datanode"
+
